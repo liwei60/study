@@ -4,14 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.lenovo.adapter.Token;
 import com.lenovo.bean.User;
 import com.lenovo.service.HelloService;
-import com.lenovo.service.RedisService;
+import com.lenovo.service.TestMongoService;
 import com.lenovo.util.Constants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class HelloController {
@@ -22,6 +23,10 @@ public class HelloController {
 
     @Autowired
     HelloService helloService;
+    @Autowired
+    TestMongoService testMongoService;
+
+
 
 
     @RequestMapping(value = "/hello",method = RequestMethod.POST)
@@ -44,5 +49,23 @@ public class HelloController {
     public String check(String a){
         logger.info("HelloController   check  "+a);
         return "index.html";
+    }
+    @RequestMapping("/save")
+    public JSONObject save(@RequestBody User user){
+        JSONObject rs = new JSONObject();
+        try {
+            rs.put(Constants.STATE,Constants.SUCCESS);
+        }catch (Exception e){
+            logger.error("HelloController    save :" +e);
+            rs.put(Constants.STATE,Constants.FALSE);
+        }
+        return rs;
+    }
+    @RequestMapping("/find")
+    public List<User> find(@RequestParam Map<String,String> map){
+        logger.info("HelloController findAll  map:"+map.toString());
+        List<User> users = testMongoService.getUsers(map);
+        logger.info("HelloController findAll json:"+users.toString());
+        return users;
     }
 }
